@@ -1,6 +1,6 @@
-*.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
+.gitignore
+.idea
+gen/
+local.properties
+out/
+project.properties
