@@ -1,6 +1,7 @@
-.gitignore
+﻿.gitignore
 .idea
 gen/
 local.properties
 out/
 project.properties
+ref/

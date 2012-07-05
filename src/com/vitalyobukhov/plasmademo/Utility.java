@@ -15,6 +15,8 @@ public final class Utility {
 
 
     public static class ActivityUtility {
+
+
         public static void goFullScreen(Activity activity) {
             activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -71,10 +73,7 @@ public final class Utility {
             WindowManager windowManager = (WindowManager)view.getContext().getSystemService(Context.WINDOW_SERVICE);
             Display display = windowManager.getDefaultDisplay();
 
-            Point sd = new Point();
-            display.getSize(sd);
-
-            return new Rect(0, 0, sd.x, sd.y);
+            return new Rect(0, 0, display.getWidth(), display.getHeight());
         }
     }
 }

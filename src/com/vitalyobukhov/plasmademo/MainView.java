@@ -8,8 +8,6 @@ import android.view.*;
 public final class MainView extends SurfaceView {
 
 
-    private static final int PLASMA_SIZE_DIV = 40;
-
     private static final boolean FPS_VISIBLE_DEFAULT = false;
 
     private static final float FPS_TEXT_DEFAULT_SIZE = 100f;
@@ -18,6 +16,8 @@ public final class MainView extends SurfaceView {
     private static final int FPS_TEXT_STROKE_COLOR = Color.BLACK;
     private static final int FPS_TEXT_FILL_COLOR = Color.WHITE;
     private static final Typeface FPS_TEXT_TYPEFACE = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
+
+    private static final int PLASMA_SIZE_DIV = 40;
 
 
     private final PointF FPS_TEXT_OFFSET;
