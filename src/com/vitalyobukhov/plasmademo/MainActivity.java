@@ -7,6 +7,12 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
+/**
+ * Main {@link Activity} of app.
+ *
+ * @author  Vitaly Obukhov
+ * @version 1.2
+ */
 public final class MainActivity extends Activity implements View.OnTouchListener {
 
 
@@ -17,10 +23,12 @@ public final class MainActivity extends Activity implements View.OnTouchListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /* configure state */
         Utility.ActivityUtility.removeTitle(this);
         Utility.ActivityUtility.goFullScreen(this);
         Utility.ActivityUtility.preventScreenDisabling(this);
 
+        /* init and start view*/
         view = new MainView(this);
         setContentView(view);
         view.setOnTouchListener(this);
@@ -40,6 +48,7 @@ public final class MainActivity extends Activity implements View.OnTouchListener
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        /* fps toggling on use touch */
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             view.toggleFpsVisible();
         }
