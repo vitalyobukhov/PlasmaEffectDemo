@@ -11,7 +11,7 @@ import android.view.*;
  * @author Vitaly Obukhov
  * @version 1.3
  */
-public final class MainView extends SurfaceView {
+public final class MainView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     /* fps text related */
@@ -40,6 +40,11 @@ public final class MainView extends SurfaceView {
 
     private Paint fpsTextStrokePaint;
     private Paint fpsTextFillPaint;
+
+    /* for surface view */
+    private final SurfaceHolder holder;
+    private boolean isSurfaceCreated;
+    private final Object isSurfaceCreatedLock;
 
     /* drawing invocation thread*/
     private UpdateThread updateThread;
@@ -70,6 +75,7 @@ public final class MainView extends SurfaceView {
         fpsTextFillPaint.setStyle(Paint.Style.FILL);
         fpsTextFillPaint.setTypeface(FPS_TEXT_TYPEFACE);
         fpsTextFillPaint.setTextSize(FPS_TEXT_DEFAULT_SIZE);
+        fpsTextFillPaint.setAntiAlias(true);
         Utility.PaintUtility.adjustFontSize(fpsTextFillPaint, fpsText, FPS_TEXT_SCREEN_CHAR_COUNT, screenSize, false);
 
         fpsTextStrokePaint = new Paint();
@@ -77,26 +83,28 @@ public final class MainView extends SurfaceView {
         fpsTextStrokePaint.setStyle(Paint.Style.STROKE);
         fpsTextStrokePaint.setStrokeWidth(FPS_TEXT_STROKE_WIDTH);
         fpsTextStrokePaint.setTypeface(FPS_TEXT_TYPEFACE);
+        fpsTextStrokePaint.setAntiAlias(true);
         fpsTextStrokePaint.setTextSize(fpsTextFillPaint.getTextSize());
 
         float fpsTextCharWidth = Utility.PaintUtility.getFontCharWidth(fpsTextFillPaint, fpsText);
         float fpsTextCharHeight = Utility.PaintUtility.getFontCharHeight(fpsTextFillPaint, fpsText);
         FPS_TEXT_OFFSET = new PointF(fpsTextCharWidth, fpsTextCharHeight * 2);
 
-        /* configure drawing invocation thread */
-        final MainView that = this;
+        /* surface related */
+        holder = getHolder();
+        holder.addCallback(this);
+
+        isSurfaceCreated = false;
+        isSurfaceCreatedLock = new Object();
+
+        /* configure drawing thread */
         updateThread = new UpdateThread() {
             @Override
             public void update() {
-                that.postInvalidate();
-                try {
-                    synchronized (that) {
-                        that.wait();
-                    }
-                } catch (InterruptedException ignored)
-                { }
+                onUpdateThreadUpdate();
             }
         };
+        updateThread.setPriority(Thread.MAX_PRIORITY);
 
         /* configure plasma effect */
         plasma = new Plasma(new Rect(0, 0, screenSize.width() / PLASMA_SIZE_DIV,
@@ -104,32 +112,50 @@ public final class MainView extends SurfaceView {
         plasmaMatrix = new Matrix();
         plasmaMatrix.setScale(PLASMA_SIZE_DIV, PLASMA_SIZE_DIV);
         plasmaPaint = new Paint();
+        plasmaPaint.setDither(true);
         plasmaPaint.setFilterBitmap(true);
     }
 
 
     @Override
-    public void onDraw(Canvas canvas) {
-        /* draw plasma effect */
-        Bitmap plasmaBitmap = plasma.getBitmap(System.currentTimeMillis());
-        canvas.drawBitmap(plasmaBitmap, plasmaMatrix, plasmaPaint);
+    public final void surfaceChanged(SurfaceHolder holder, int format, int width, int height) { }
 
-        /* draw fps if required */
-        if (getFpsVisible()) {
-            String fpsText = Integer.toString(updateThread.getRealFps());
-            canvas.drawText(fpsText, FPS_TEXT_OFFSET.x, FPS_TEXT_OFFSET.y, fpsTextStrokePaint);
-            canvas.drawText(fpsText, FPS_TEXT_OFFSET.x, FPS_TEXT_OFFSET.y, fpsTextFillPaint);
-        }
+    @Override
+    public final void surfaceCreated(SurfaceHolder holder) {
+        setIsSurfaceCreated(true);
+    }
 
-        synchronized (this) {
-            this.notify();
+    @Override
+    public final void surfaceDestroyed(SurfaceHolder holder) {
+        setIsSurfaceCreated(false);
+    }
+
+    /**
+     * Draws on view's canvas.
+     */
+    private void onUpdateThreadUpdate() {
+        if(getIsSurfaceCreated()){
+            Canvas canvas = holder.lockCanvas();
+
+            /* draw plasma effect */
+            Bitmap plasmaBitmap = plasma.getBitmap(System.currentTimeMillis());
+            canvas.drawBitmap(plasmaBitmap, plasmaMatrix, plasmaPaint);
+
+            /* draw fps if required */
+            if (getFpsVisible()) {
+                String fpsText = Integer.toString(updateThread.getRealFps());
+                canvas.drawText(fpsText, FPS_TEXT_OFFSET.x, FPS_TEXT_OFFSET.y, fpsTextStrokePaint);
+                canvas.drawText(fpsText, FPS_TEXT_OFFSET.x, FPS_TEXT_OFFSET.y, fpsTextFillPaint);
+            }
+
+            holder.unlockCanvasAndPost(canvas);
         }
     }
 
     /**
      * Starts drawing cycle.
      */
-    public void start() {
+    public final void start() {
         synchronized (isRunningSync) {
             if (!isRunning) {
                 isRunning = true;
@@ -141,7 +167,7 @@ public final class MainView extends SurfaceView {
     /**
      * Finishes drawing cycle.
      */
-    public void end() {
+    public final void end() {
         synchronized (isRunningSync) {
             if (isRunning) {
                 updateThread.end();
@@ -150,21 +176,33 @@ public final class MainView extends SurfaceView {
         }
     }
 
-    public boolean getFpsVisible() {
+    public final boolean getFpsVisible() {
         synchronized (fpsVisibleSync) {
             return fpsVisible;
         }
     }
 
-    public void setFpsVisible(boolean val) {
+    public final void setFpsVisible(boolean val) {
         synchronized (fpsVisibleSync) {
             fpsVisible = val;
         }
     }
 
-    public void toggleFpsVisible() {
+    public final void toggleFpsVisible() {
         synchronized (fpsVisibleSync) {
             fpsVisible = !fpsVisible;
+        }
+    }
+
+    private boolean getIsSurfaceCreated() {
+        synchronized (isSurfaceCreatedLock) {
+            return isSurfaceCreated;
+        }
+    }
+
+    private void setIsSurfaceCreated(boolean val) {
+        synchronized (isSurfaceCreatedLock) {
+            isSurfaceCreated = val;
         }
     }
 }
