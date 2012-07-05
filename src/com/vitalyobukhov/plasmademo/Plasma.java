@@ -33,8 +33,6 @@ public final class Plasma {
     private int[] pixels;
     private Bitmap bitmap;
 
-    private Random random;
-
     /* initial coordinates */
     private double rcx1, rcy1, gcx1, gcy1, bcx1, bcy1;
     private double rcx2, rcy2, gcx2, gcy2, bcx2, bcy2;
@@ -58,9 +56,45 @@ public final class Plasma {
         pixels = new int[width * height];
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        random = new Random();
+        Random rnd = new Random();
 
-        randomize();
+        /* attractors coordinates */
+        rcx1 = rnd.nextDouble() * width;
+        rcy1 = rnd.nextDouble() * height;
+        gcx1 = rnd.nextDouble() * width;
+        gcy1 = rnd.nextDouble() * height;
+        bcx1 = rnd.nextDouble() * width;
+        bcy1 = rnd.nextDouble() * height;
+
+        /* repulsors coordinates*/
+        rcx2 = rnd.nextDouble() * width;
+        rcy2 = rnd.nextDouble() * height;
+        gcx2 = rnd.nextDouble() * width;
+        gcy2 = rnd.nextDouble() * height;
+        bcx2 = rnd.nextDouble() * width;
+        bcy2 = rnd.nextDouble() * height;
+
+        /* speed constants */
+        double sxb = 1.0 * width / SPEED_MIN_DIV;
+        double sxa = 1.0 * width / SPEED_MAX_DIV;
+        double syb = 1.0 * height / SPEED_MIN_DIV;
+        double sya = 1.0 * height / SPEED_MAX_DIV;
+
+        /* attractors speeds */
+        rsx1 = syb + rnd.nextDouble() * sxa;
+        rsy1 = sxb + rnd.nextDouble() * sya;
+        gsx1 = sxb + rnd.nextDouble() * sxa;
+        gsy1 = sxb + rnd.nextDouble() * sya;
+        bsx1 = sxb + rnd.nextDouble() * sxa;
+        bsy1 = sxb + rnd.nextDouble() * sya;
+
+        /* repulsors speeds */
+        rsx2 = sxb + rnd.nextDouble() * sxa;
+        rsy2 = sxb + rnd.nextDouble() * sya;
+        gsx2 = sxb + rnd.nextDouble() * sxa;
+        gsy2 = sxb + rnd.nextDouble() * sya;
+        bsx2 = sxb + rnd.nextDouble() * sxa;
+        bsy2 = sxb + rnd.nextDouble() * sya;
     }
 
     /**
@@ -69,7 +103,7 @@ public final class Plasma {
      * @param time  desired time
      * @return      plasma effect {@link Bitmap}
      */
-    public Bitmap getBitmap(long time) {
+    public final Bitmap getBitmap(long time) {
         /* scale time */
         double t = time / TIME_DIV;
 
@@ -149,49 +183,6 @@ public final class Plasma {
         }
 
         return val;
-    }
-
-    /**
-     * Initializes starting coordinates and speeds.
-     */
-    private void randomize() {
-        /* attractors coordinates */
-        rcx1 = random.nextDouble() * width;
-        rcy1 = random.nextDouble() * height;
-        gcx1 = random.nextDouble() * width;
-        gcy1 = random.nextDouble() * height;
-        bcx1 = random.nextDouble() * width;
-        bcy1 = random.nextDouble() * height;
-
-        /* repulsors coordinates*/
-        rcx2 = random.nextDouble() * width;
-        rcy2 = random.nextDouble() * height;
-        gcx2 = random.nextDouble() * width;
-        gcy2 = random.nextDouble() * height;
-        bcx2 = random.nextDouble() * width;
-        bcy2 = random.nextDouble() * height;
-
-        /* speed constants */
-        double sxb = 1.0 * width / SPEED_MIN_DIV;
-        double sxa = 1.0 * width / SPEED_MAX_DIV;
-        double syb = 1.0 * height / SPEED_MIN_DIV;
-        double sya = 1.0 * height / SPEED_MAX_DIV;
-
-        /* attractors speeds */
-        rsx1 = syb + random.nextDouble() * sxa;
-        rsy1 = sxb + random.nextDouble() * sya;
-        gsx1 = sxb + random.nextDouble() * sxa;
-        gsy1 = sxb + random.nextDouble() * sya;
-        bsx1 = sxb + random.nextDouble() * sxa;
-        bsy1 = sxb + random.nextDouble() * sya;
-
-        /* repulsors speeds */
-        rsx2 = sxb + random.nextDouble() * sxa;
-        rsy2 = sxb + random.nextDouble() * sya;
-        gsx2 = sxb + random.nextDouble() * sxa;
-        gsy2 = sxb + random.nextDouble() * sya;
-        bsx2 = sxb + random.nextDouble() * sxa;
-        bsy2 = sxb + random.nextDouble() * sya;
     }
 
     /**

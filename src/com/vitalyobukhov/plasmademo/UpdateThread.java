@@ -155,7 +155,7 @@ public class UpdateThread extends Thread {
         }
     }
 
-    private final void setRealFps(int val) {
+    private void setRealFps(int val) {
         synchronized (realFpsSync) {
             realFps = val;
         }
