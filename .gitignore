@@ -5,3 +5,6 @@ local.properties
 out/
 project.properties
 ref/
+Plasma\ Demo.iml
+ant.properties
+proguard-project.txt

@@ -25,7 +25,7 @@ public final class MainView extends SurfaceView implements SurfaceHolder.Callbac
     private static final Typeface FPS_TEXT_TYPEFACE = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
 
     /* plasma effect size divider */
-    private static final int PLASMA_SIZE_DIV = 40;
+    private static final int PLASMA_SIZE_DIV = 80;
 
 
     private final PointF FPS_TEXT_OFFSET;
